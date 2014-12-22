@@ -21,10 +21,7 @@ HTMLWidgets.widget({
     // get dygraph attrs and populate file field
     var attrs = x.attrs;
     attrs.file = x.data;
-    
-    // resolve javascript functions
-    this.resolveFunctions(x.attrs);
-    
+        
     // resolve "auto" legend behavior
     if (x.attrs.legend == "auto") {
       if (x.data.length <= 2)
@@ -92,10 +89,6 @@ HTMLWidgets.widget({
         x.annotations.map(function(annotation) {
           var date = thiz.normalizeDateValue(x.scale, annotation.x);
           annotation.x = date.getTime();
-          thiz.evaluateStringMember(annotation, 'clickHandler');
-          thiz.evaluateStringMember(annotation, 'mouseOverHandler');
-          thiz.evaluateStringMember(annotation, 'mouseOutHandler');
-          thiz.evaluateStringMember(annotation, 'dblClickHandler');
         });
         instance.dygraph.setAnnotations(x.annotations);
       }); 
@@ -285,65 +278,6 @@ HTMLWidgets.widget({
       canvas.font = size + 'px ' + parts[1];
     else if (parts.length === 3)
       canvas.font = parts[0] + ' ' + size + 'px ' + parts[2];
-  },
-  
-  resolveFunctions: function(attrs) {
-    this.evaluateStringMember(attrs, 'annotationClickHandler');
-    this.evaluateStringMember(attrs, 'annotationDblClickHandler');
-    this.evaluateStringMember(attrs, 'annotationMouseOutHandler');
-    this.evaluateStringMember(attrs, 'annotationMouseOverHandler');
-    this.evaluateStringMember(attrs, 'axisLabelFormatter');
-    this.evaluateStringMember(attrs, 'axes.attrs.axisLabelFormatter');
-    this.evaluateStringMember(attrs, 'axes.y.axisLabelFormatter');
-    this.evaluateStringMember(attrs, 'axes.y2.axisLabelFormatter');
-    this.evaluateStringMember(attrs, 'axes.attrs.ticker');
-    this.evaluateStringMember(attrs, 'axes.y.ticker');
-    this.evaluateStringMember(attrs, 'axes.y2.ticker');
-    this.evaluateStringMember(attrs, 'xValueParser');
-    this.evaluateStringMember(attrs, 'clickCallback');
-    this.evaluateStringMember(attrs, 'drawCallback');
-    this.evaluateStringMember(attrs, 'highlightCallback');
-    this.evaluateStringMember(attrs, 'pointClickCallback');
-    this.evaluateStringMember(attrs, 'underlayCallback');
-    this.evaluateStringMember(attrs, 'unhighlightCallback');
-    this.evaluateStringMember(attrs, 'zoomCallback');
-    this.evaluateStringMember(attrs, 'drawHighlightPointCallback');
-    this.evaluateStringMember(attrs, 'drawPointCallback');
-    this.evaluateStringMember(attrs, 'annotationClickHandler');
-    this.evaluateStringMember(attrs, 'annotationMouseOverHandler');
-    this.evaluateStringMember(attrs, 'annotationMouseOutHandler');
-    this.evaluateStringMember(attrs, 'annotationDblClickHandler');
-    this.evaluateStringMember(attrs, 'valueFormatter');
-    this.evaluateStringMember(attrs, 'axes.attrs.valueFormatter');
-    this.evaluateStringMember(attrs, 'axes.y.valueFormatter');
-    this.evaluateStringMember(attrs, 'axes.y2.valueFormatter');
-    this.evaluateStringMember(attrs, 'plotter');
-    var thiz = this;
-    if (attrs.series != null) {
-      for (name in attrs.series) {
-        var series = attrs.series[name];
-        thiz.evaluateStringMember(series, 'plotter');
-      }
-    }
-  },
-  
-  evaluateStringMember: function(o, member) {
-    var parts = member.split('.');
-    for(var i = 0, l = parts.length; i < l; i++) {
-      var part = parts[i];
-      if(o !== null && typeof o === "object" && part in o) {
-        if (i == (l-1)) { // if we are at the end of the line then evalulate 
-          if (typeof o[part] === "string")
-            o[part] = eval("(" + o[part] + ")")
-          else if (o[part] instanceof Array)
-            o[part].map(function(value) { return eval("(" + value + ")"); })
-        } else { // otherwise continue to next embedded object
-          o = o[part];
-        }
-      }
-      else  // part not found, no evaluation 
-        return;
-    } 
   },
   
   // Returns the value of a GET variable
